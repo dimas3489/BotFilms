@@ -1,4 +1,6 @@
-    Название: MovieNightBot
+<h1 align="center">Привет это мой телеграмм бот<a href="https://daniilshat.ru/" target="_blank">Daniil</a> 
+<img src="https://github.com/blackcater/blackcater/raw/main/images/Hi.gif" height="32"/></h1>
+<h3 align="center">Telegram bot MovieNightBot</h3>
   Основные функции:
 Рациональный выбор: Бот предлагает пользователю случайные фильмы или сериалы на основе заданных предпочтений (жанр, год выпуска, рейтинг и т.д.).
 Пользовательский интерфейс: Доступен через мессенджер (Telegram).
