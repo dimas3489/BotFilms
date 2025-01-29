@@ -1,75 +1,53 @@
+import logging
 import random
-from aiogram import Bot, Dispatcher, types
+import requests
+from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher import filters
 from aiogram.utils import executor
-from aiogram.dispatcher import FSMRule, State
+from aiogram import types
 
-API_TOKEN = 'Your API'
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
 
+TMDB_API_KEY = 'YOUR API KEY"'
+TMDB_BASE_URL = 'https://api.themoviedb.org/3'
 
-bot = Bot(token=API_TOKEN)
+user_history = {}
+
+bot = Bot(token="YOUR API KEY")
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
 
-
-class Form(StatesGroup):
-    genre = State()
-    year = State()
-    rating = State()
-
-
-movies_db = [
-    {"title": "Inception", "genre": "Sci-Fi", "year": 2010, "rating": 8.8},
-    {"title": "The Godfather", "genre": "Crime", "year": 1972, "rating": 9.2},
-    {"title": "The Dark Knight", "genre": "Action", "year": 2008, "rating": 9.0},
-    {"title": "Breaking Bad", "genre": "Drama", "year": 2008, "rating": 9.5},
-
-]
+def get_random_movie(genre):
+    url = f"{TMDB_BASE_URL}/discover/movie?api_key={TMDB_API_KEY}&with_genres={genre}&sort_by=popularity.desc"
+    response = requests.get(url)
+    data = response.json()
+    if data['results']:
+        return random.choice(data['results'])
+    return None
 
 @dp.message_handler(commands=['start'])
-async def start_command(message: types.Message):
-    await message.reply("Привет! Я помогу тебе выбрать фильм или сериал. Какой жанр тебя интересует?")
-    await Form.genre.set()
+async def start(message: types.Message):
+    await message.reply('Привет! Я Ваш кино-бот. Введите "показать фильм", чтобы начать.')
 
-@dp.message_handler(state=Form.genre)
-async def process_genre(message: types.Message, state: FSMContext):
-    genre = message.text
-    await state.update_data(genre=genre)
-    await message.reply("Отлично! Укажи год выпуска (например, 2020) или напиши 'любой'.")
-    await Form.year.set()
+@dp.message_handler(lambda message: "показать фильм" in message.text.lower())
+async def show_movie(message: types.Message):
+    await message.reply('Какой жанр Вас интересует? (например, комедия, драма)')
 
-@dp.message_handler(state=Form.year)
-async def process_year(message: types.Message, state: FSMContext):
-    year = message.text
-    await state.update_data(year=year)
-    await message.reply("Какой минимальный рейтинг тебя устраивает? (например, 7.0)")
-    await Form.rating.set()
-
-@dp.message_handler(state=Form.rating)
-async def process_rating(message: types.Message, state: FSMContext):
-    rating = float(message.text)
-    user_data = await state.get_data()
-    genre = user_data.get('genre')
-    year = user_data.get('year')
-
-
-    filtered_movies = [
-        movie for movie in movies_db
-        if (genre.lower() in movie['genre'].lower()) and
-           (year == 'любой' or movie['year'] == int(year)) and
-           (movie['rating'] >= rating)
-    ]
-
-    if filtered_movies:
-        selected_movie = random.choice(filtered_movies)
-        await message.reply(f"Я рекомендую тебе: {selected_movie['title']} ({selected_movie['year']}) - Жанр: {selected_movie['genre']}, Рейтинг: {selected_movie['rating']}")
+@dp.message_handler(lambda message: True)
+async def handle_message(message: types.Message):
+    user_input = message.text.lower()
+    
+    if "комедия" in user_input:
+        movie = get_random_movie(35)
+        if movie:
+            user_history[message.from_user.id] = movie
+            await message.reply(f"Рекомендую Вам посмотреть '{movie['title']}' ({movie['release_date']}). Описание: {movie['overview']}. [Ссылка на трейлер](https://www.youtube.com/watch?v={movie['id']})", parse_mode='Markdown')
+        else:
+            await message.reply('Извините, не удалось найти фильм.')
     else:
-        await message.reply("Извини, я не нашел подходящих фильмов или сериалов.")
-
-    await state.finish()
+        await message.reply('Пожалуйста, уточните жанр.')
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
-
