@@ -1,10 +1,10 @@
 import logging
 import random
 import requests
-from aiogram import Bot, Dispatcher
+from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.utils import executor
-from aiogram import types
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -28,25 +28,35 @@ def get_random_movie(genre):
 
 @dp.message_handler(commands=['start'])
 async def start(message: types.Message):
-    await message.reply('Привет! Я Ваш кино-бот. Введите "показать фильм", чтобы начать.')
+    keyboard = InlineKeyboardMarkup()
+    button_show_movie = InlineKeyboardButton("Показать фильм", callback_data="show_movie")
+    keyboard.add(button_show_movie)
+    await message.reply('Привет! Я Ваш кино-бот. Нажмите кнопку ниже, чтобы начать.', reply_markup=keyboard)
 
-@dp.message_handler(lambda message: "показать фильм" in message.text.lower())
-async def show_movie(message: types.Message):
-    await message.reply('Какой жанр Вас интересует? (например, комедия, драма)')
-
-@dp.message_handler(lambda message: True)
-async def handle_message(message: types.Message):
-    user_input = message.text.lower()
+@dp.callback_query_handler(lambda callback_query: callback_query.data == "show_movie")
+async def show_genre_selection(callback_query: types.CallbackQuery):
+    keyboard = InlineKeyboardMarkup()
+    button_comedy = InlineKeyboardButton("Комедия", callback_data="comedy")
+    button_drama = InlineKeyboardButton("Драма", callback_data="drama")
+    keyboard.add(button_comedy, button_drama)
     
-    if "комедия" in user_input:
-        movie = get_random_movie('comedy')
-        if movie:
-            user_history[message.from_user.id] = movie
-            await message.reply(f"Рекомендую Вам посмотреть '{movie['title']}' ({movie['year']}). Описание: {movie['description']}. [Ссылка на трейлер](https://www.imdb.com/title/{movie['id']})", parse_mode='Markdown')
-        else:
-            await message.reply('Извините, не удалось найти фильм.')
+    await bot.send_message(callback_query.from_user.id, 'Какой жанр Вас интересует?', reply_markup=keyboard)
+    await callback_query.answer()
+
+@dp.callback_query_handler(lambda callback_query: callback_query.data in ["comedy", "drama"])
+async def handle_genre_selection(callback_query: types.CallbackQuery):
+    genre = callback_query.data
+    movie = get_random_movie(genre)
+    
+    if movie:
+        user_history[callback_query.from_user.id] = movie
+        await bot.send_message(callback_query.from_user.id, 
+                               f"Рекомендую Вам посмотреть '{movie['title']}' ({movie['year']}). Описание: {movie['description']}. [Ссылка на трейлер](https://www.imdb.com/title/{movie['id']})", 
+                               parse_mode='Markdown')
     else:
-        await message.reply('Пожалуйста, уточните жанр.')
+        await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти фильм.')
+    
+    await callback_query.answer()
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
