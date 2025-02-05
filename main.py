@@ -14,7 +14,7 @@ IMDB_BASE_URL = 'https://imdb-api.com/en/API'
 
 user_history = {}
 
-bot = Bot(token="YOUR KEY")
+bot = Bot(token="")
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
 
@@ -29,11 +29,21 @@ def get_random_movie(genre):
 @dp.message_handler(commands=['start'])
 async def start(message: types.Message):
     keyboard = InlineKeyboardMarkup()
-    button_show_movie = InlineKeyboardButton("Показать фильм", callback_data="show_movie")
-    keyboard.add(button_show_movie)
-    await message.reply('Привет! Я Ваш кино-бот. Нажмите кнопку ниже, чтобы начать.', reply_markup=keyboard)
+    button_menu = InlineKeyboardButton("Меню", callback_data="menu")
+    keyboard.add(button_menu)
+    await message.reply('Привет! Я ваш бот для поиска фильмов и сериалов. Нажмите кнопку ниже, чтобы начать.', reply_markup=keyboard)
 
-@dp.callback_query_handler(lambda callback_query: callback_query.data == "show_movie")
+@dp.callback_query_handler(lambda callback_query: callback_query.data == "menu")
+async def show_genre_selection(callback_query: types.CallbackQuery):
+    keyboard = InlineKeyboardMarkup()
+    button_comedy = InlineKeyboardButton("Cериалы", callback_data="serials")
+    button_drama = InlineKeyboardButton("Фильмы", callback_data="films")
+    keyboard.add(button_comedy, button_drama)
+    
+    await bot.send_message(callback_query.from_user.id, 'Что будем искать?', reply_markup=keyboard)
+    await callback_query.answer()
+
+@dp.callback_query_handler(lambda callback_query: callback_query.data == "films")
 async def show_genre_selection(callback_query: types.CallbackQuery):
     keyboard = InlineKeyboardMarkup()
     button_comedy = InlineKeyboardButton("Комедия", callback_data="comedy")
