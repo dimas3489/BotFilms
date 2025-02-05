@@ -36,11 +36,36 @@ async def start(message: types.Message):
 @dp.callback_query_handler(lambda callback_query: callback_query.data == "menu")
 async def show_genre_selection(callback_query: types.CallbackQuery):
     keyboard = InlineKeyboardMarkup()
-    button_comedy = InlineKeyboardButton("Cериалы", callback_data="serials")
-    button_drama = InlineKeyboardButton("Фильмы", callback_data="films")
-    keyboard.add(button_comedy, button_drama)
+    button_poisk = InlineKeyboardButton("Поиск фильма или сериала на вечер", callback_data="poisk")
+    button_historyk = InlineKeyboardButton("История просмотра и избранное", callback_data="historyk")
+    keyboard.add(button_poisk, button_historyk)
+    
+    await bot.send_message(callback_query.from_user.id, 'Я имею несколько функций, которые представленны ниже', reply_markup=keyboard)
+    await callback_query.answer()
+
+@dp.callback_query_handler(lambda callback_query: callback_query.data == "poisk")
+async def show_genre_selection(callback_query: types.CallbackQuery):
+    keyboard = InlineKeyboardMarkup()
+    button_serials = InlineKeyboardButton("Cериалы", callback_data="serials")
+    button_films = InlineKeyboardButton("Фильмы", callback_data="films")
+    keyboard.add(button_serials, button_films)
     
     await bot.send_message(callback_query.from_user.id, 'Что будем искать?', reply_markup=keyboard)
+    await callback_query.answer()
+
+@dp.callback_query_handler(lambda callback_query: callback_query.data == "serials")
+async def show_genre_selection(callback_query: types.CallbackQuery):
+    keyboard = InlineKeyboardMarkup()
+    button_melodram = InlineKeyboardButton("Мелодрама", callback_data="melodram")
+    button_comedy = InlineKeyboardButton("Комедия", callback_data="comedy")
+    button_detectiv = InlineKeyboardButton("Детективные", callback_data="detectiv")
+    button_war = InlineKeyboardButton("Военные", callback_data="war")
+    button_history = InlineKeyboardButton("Исторические", callback_data="history")
+    button_fantasy = InlineKeyboardButton("Фантастика", callback_data="fantasy")
+    button_menu = InlineKeyboardButton("Вернутся в меню", callback_data="menu")
+    keyboard.add(button_comedy, button_melodram, button_detectiv, button_war, button_history, button_fantasy, button_menu)
+    
+    await bot.send_message(callback_query.from_user.id, 'Какой жанр сериала вас интересует?', reply_markup=keyboard)
     await callback_query.answer()
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data == "films")
@@ -48,7 +73,8 @@ async def show_genre_selection(callback_query: types.CallbackQuery):
     keyboard = InlineKeyboardMarkup()
     button_comedy = InlineKeyboardButton("Комедия", callback_data="comedy")
     button_drama = InlineKeyboardButton("Драма", callback_data="drama")
-    keyboard.add(button_comedy, button_drama)
+    button_menu = InlineKeyboardButton("Вернутся в меню", callback_data="menu")
+    keyboard.add(button_comedy, button_drama, button_menu)
     
     await bot.send_message(callback_query.from_user.id, 'Какой жанр Вас интересует?', reply_markup=keyboard)
     await callback_query.answer()
