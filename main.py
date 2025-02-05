@@ -3,24 +3,23 @@ import random
 import requests
 from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from aiogram.dispatcher import FSMContext
 from aiogram.utils import executor
 from aiogram import types
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-TMDB_API_KEY = 'YOUR API KEY"'
-TMDB_BASE_URL = 'https://api.themoviedb.org/3'
+IMDB_API_KEY = 'ваш_ключ_здесь'
+IMDB_BASE_URL = 'https://imdb-api.com/en/API'
 
 user_history = {}
 
-bot = Bot(token="YOUR API KEY")
+bot = Bot(token="8074184752:AAEjgFxyBDAyY1QEY0SphnqqS3MZp9He_fs")
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
 
 def get_random_movie(genre):
-    url = f"{TMDB_BASE_URL}/discover/movie?api_key={TMDB_API_KEY}&with_genres={genre}&sort_by=popularity.desc"
+    url = f"{IMDB_BASE_URL}/AdvancedSearch/{IMDB_API_KEY}?genres={genre}&sort=year,desc"
     response = requests.get(url)
     data = response.json()
     if data['results']:
@@ -40,10 +39,10 @@ async def handle_message(message: types.Message):
     user_input = message.text.lower()
     
     if "комедия" in user_input:
-        movie = get_random_movie(35)
+        movie = get_random_movie('comedy')
         if movie:
             user_history[message.from_user.id] = movie
-            await message.reply(f"Рекомендую Вам посмотреть '{movie['title']}' ({movie['release_date']}). Описание: {movie['overview']}. [Ссылка на трейлер](https://www.youtube.com/watch?v={movie['id']})", parse_mode='Markdown')
+            await message.reply(f"Рекомендую Вам посмотреть '{movie['title']}' ({movie['year']}). Описание: {movie['description']}. [Ссылка на трейлер](https://www.imdb.com/title/{movie['id']})", parse_mode='Markdown')
         else:
             await message.reply('Извините, не удалось найти фильм.')
     else:
@@ -51,3 +50,10 @@ async def handle_message(message: types.Message):
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
+
+
+
+
+
+
+
