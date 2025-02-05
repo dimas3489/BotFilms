@@ -14,7 +14,7 @@ IMDB_BASE_URL = 'https://imdb-api.com/en/API'
 
 user_history = {}
 
-bot = Bot(token="8074184752:AAEjgFxyBDAyY1QEY0SphnqqS3MZp9He_fs")
+bot = Bot(token="YOUR KEY")
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
 
