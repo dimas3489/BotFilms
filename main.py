@@ -25,7 +25,7 @@ except Exception as e:
 
 user_history = {}
 
-bot = Bot(token="8074184752:AAEjgFxyBDAyY1QEY0SphnqqS3MZp9He_fs")
+bot = Bot(token="")
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
 
