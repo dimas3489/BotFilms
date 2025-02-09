@@ -9,11 +9,9 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Загрузка данных о фильмах
 with open('movies.json', 'r', encoding='utf-8') as file:
     movies_data = json.load(file)
 
-# Функция для получения случайного фильма по жанру
 def get_random_movie(genre):
     movies_list = movies_data['docs']
     filtered_movies = [
@@ -24,7 +22,6 @@ def get_random_movie(genre):
         return random.choice(filtered_movies)
     return None
 
-# Загрузка данных о сериалах
 try:
     with open('series.json', 'r', encoding='utf-8') as f:
         series_data = json.load(f)
@@ -32,7 +29,6 @@ except Exception as e:
     logger.error(f"Ошибка при загрузке series.json: {e}")
     series_data = []
 
-# Функция для получения случайного сериала по жанру
 def get_random_series(genre):
     series_list = series_data['docs']
     filtered_series = [
@@ -111,8 +107,8 @@ async def show_genre_selection(callback_query: types.CallbackQuery):
     await callback_query.answer()
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data in [
-    "comedy", "drama", "melodram", "detectiv", "war", "history", "fantasy",  # Сериалы
-    "detektiv", "voennyy", "istorya", "triller", "uzhasy", "fantastika", "fentezi"  # Фильмы
+    "comedy", "drama", "melodram", "detectiv", "war", "history", "fantasy",
+    "detektiv", "voennyy", "istorya", "triller", "uzhasy", "fantastika", "fentezi"
 ])
 async def handle_genre_selection(callback_query: types.CallbackQuery):
     genre = callback_query.data
