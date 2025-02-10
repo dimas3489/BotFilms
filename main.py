@@ -22,12 +22,8 @@ def get_random_movie(genre):
         return random.choice(filtered_movies)
     return None
 
-try:
-    with open('series.json', 'r', encoding='utf-8') as f:
-        series_data = json.load(f)
-except Exception as e:
-    logger.error(f"Ошибка при загрузке series.json: {e}")
-    series_data = []
+with open('series.json', 'r', encoding='utf-8') as file:
+    series_data = json.load(file)
 
 def get_random_series(genre):
     series_list = series_data['docs']
@@ -38,6 +34,8 @@ def get_random_series(genre):
     if filtered_series:
         return random.choice(filtered_series)
     return None
+
+
 
 user_history = {}
 user_favorites = {}
@@ -76,14 +74,17 @@ async def show_genre_selection(callback_query: types.CallbackQuery):
 @dp.callback_query_handler(lambda callback_query: callback_query.data == "serials")
 async def show_genre_selection(callback_query: types.CallbackQuery):
     keyboard = InlineKeyboardMarkup()
-    button_melodram = InlineKeyboardButton("Мелодрама", callback_data="melodram")
+    button_detektiv = InlineKeyboardButton("Детектив", callback_data="detektiv")
+    button_voennyy = InlineKeyboardButton("Военный", callback_data="voennyy")
+    button_istorya = InlineKeyboardButton("История", callback_data="istoriya")
     button_comedy = InlineKeyboardButton("Комедия", callback_data="comedy")
-    button_detectiv = InlineKeyboardButton("Детективные", callback_data="detectiv")
-    button_war = InlineKeyboardButton("Военные", callback_data="war")
-    button_history = InlineKeyboardButton("Исторические", callback_data="history")
-    button_fantasy = InlineKeyboardButton("Фантастика", callback_data="fantasy")
+    button_triller = InlineKeyboardButton("Триллер", callback_data="triller")
+    button_uzhasy = InlineKeyboardButton("Ужасы", callback_data="uzhasy")
+    button_fantastika = InlineKeyboardButton("Фантастика", callback_data="fantastika")
+    button_fentezi = InlineKeyboardButton("Фэнтези", callback_data="fentezi")
+    button_drama = InlineKeyboardButton("Драма", callback_data="drama")
     button_menu = InlineKeyboardButton("Вернутся в меню", callback_data="menu")
-    keyboard.add(button_comedy, button_melodram, button_detectiv, button_war, button_history, button_fantasy, button_menu)
+    keyboard.add(button_detektiv, button_voennyy, button_istorya, button_comedy, button_triller, button_uzhasy, button_fantastika, button_fentezi, button_drama, button_menu)
     
     await bot.send_message(callback_query.from_user.id, 'Какой жанр сериала вас интересует?', reply_markup=keyboard)
     await callback_query.answer()
@@ -93,7 +94,7 @@ async def show_genre_selection(callback_query: types.CallbackQuery):
     keyboard = InlineKeyboardMarkup()
     button_detektiv = InlineKeyboardButton("Детектив", callback_data="detektiv")
     button_voennyy = InlineKeyboardButton("Военный", callback_data="voennyy")
-    button_istorya = InlineKeyboardButton("История", callback_data="istorya")
+    button_istorya = InlineKeyboardButton("История", callback_data="istoriya")
     button_comedy = InlineKeyboardButton("Комедия", callback_data="comedy")
     button_triller = InlineKeyboardButton("Триллер", callback_data="triller")
     button_uzhasy = InlineKeyboardButton("Ужасы", callback_data="uzhasy")
@@ -108,7 +109,7 @@ async def show_genre_selection(callback_query: types.CallbackQuery):
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data in [
     "comedy", "drama", "melodram", "detectiv", "war", "history", "fantasy",
-    "detektiv", "voennyy", "istorya", "triller", "uzhasy", "fantastika", "fentezi"
+    "detektiv", "voennyy", "istoriya", "triller", "uzhasy", "fantastika", "fentezi"
 ])
 async def handle_genre_selection(callback_query: types.CallbackQuery):
     genre = callback_query.data
@@ -124,7 +125,7 @@ async def handle_genre_selection(callback_query: types.CallbackQuery):
             keyboard.add(button_search_again, button_add_to_favorites, button_back_to_menu)
             
             await bot.send_message(callback_query.from_user.id, 
-                                   f"Рекомендую Вам посмотреть сериал '{series['name']}' ({series['year']}). Описание: {series['description']}. [Ссылка на Кинопоиск](https://www.kinopoisk.ru/series/{series['id']})", 
+                                   f"Рекомендую Вам посмотреть сериал '{series['name']}' ({series['year']}). Описание: {series['description']}",
                                    reply_markup=keyboard, parse_mode='Markdown')
         else:
             await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти сериал.')
@@ -161,7 +162,7 @@ async def search_again(callback_query: types.CallbackQuery):
             keyboard.add(button_search_again, button_add_to_favorites, button_back_to_menu)
             
             await bot.send_message(callback_query.from_user.id, 
-                                   f"Рекомендую Вам посмотреть сериал '{series['name']}' ({series['year']}). Описание: {series['description']}. [Ссылка на Кинопоиск](https://www.kinopoisk.ru/series/{series['id']})", 
+                                   f"Рекомендую Вам посмотреть сериал '{series['name']}' ({series['year']}). Описание: {series['description']}", 
                                    reply_markup=keyboard, parse_mode='Markdown')
         else:
             await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти сериал.')
