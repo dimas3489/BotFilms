@@ -77,14 +77,14 @@ async def show_genre_selection(callback_query: types.CallbackQuery):
     button_detektiv = InlineKeyboardButton("Детектив", callback_data="detektiv")
     button_voennyy = InlineKeyboardButton("Военный", callback_data="voennyy")
     button_istorya = InlineKeyboardButton("История", callback_data="istoriya")
-    button_comedy = InlineKeyboardButton("Комедия", callback_data="comedy")
+    button_komediya = InlineKeyboardButton("Комедия", callback_data="komediya")
     button_triller = InlineKeyboardButton("Триллер", callback_data="triller")
     button_uzhasy = InlineKeyboardButton("Ужасы", callback_data="uzhasy")
     button_fantastika = InlineKeyboardButton("Фантастика", callback_data="fantastika")
     button_fentezi = InlineKeyboardButton("Фэнтези", callback_data="fentezi")
     button_drama = InlineKeyboardButton("Драма", callback_data="drama")
     button_menu = InlineKeyboardButton("Вернутся в меню", callback_data="menu")
-    keyboard.add(button_detektiv, button_voennyy, button_istorya, button_comedy, button_triller, button_uzhasy, button_fantastika, button_fentezi, button_drama, button_menu)
+    keyboard.add(button_detektiv, button_voennyy, button_istorya, button_komediya, button_triller, button_uzhasy, button_fantastika, button_fentezi, button_drama, button_menu)
     
     await bot.send_message(callback_query.from_user.id, 'Какой жанр сериала вас интересует?', reply_markup=keyboard)
     await callback_query.answer()
@@ -95,20 +95,20 @@ async def show_genre_selection(callback_query: types.CallbackQuery):
     button_detektiv = InlineKeyboardButton("Детектив", callback_data="detektiv")
     button_voennyy = InlineKeyboardButton("Военный", callback_data="voennyy")
     button_istorya = InlineKeyboardButton("История", callback_data="istoriya")
-    button_comedy = InlineKeyboardButton("Комедия", callback_data="comedy")
+    button_comedy = InlineKeyboardButton("komediya", callback_data="komediya")
     button_triller = InlineKeyboardButton("Триллер", callback_data="triller")
     button_uzhasy = InlineKeyboardButton("Ужасы", callback_data="uzhasy")
     button_fantastika = InlineKeyboardButton("Фантастика", callback_data="fantastika")
     button_fentezi = InlineKeyboardButton("Фэнтези", callback_data="fentezi")
     button_drama = InlineKeyboardButton("Драма", callback_data="drama")
     button_menu = InlineKeyboardButton("Вернутся в меню", callback_data="menu")
-    keyboard.add(button_detektiv, button_voennyy, button_istorya, button_comedy, button_triller, button_uzhasy, button_fantastika, button_fentezi, button_drama, button_menu)
+    keyboard.add(button_detektiv, button_voennyy, button_istorya, button_komediya, button_triller, button_uzhasy, button_fantastika, button_fentezi, button_drama, button_menu)
     
     await bot.send_message(callback_query.from_user.id, 'Какой жанр Вас интересует?', reply_markup=keyboard)
     await callback_query.answer()
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data in [
-    "comedy", "drama", "melodram", "detectiv", "war", "history", "fantasy",
+    "komediya", "drama", "melodram", "detectiv", "war", "history", "fantasy",
     "detektiv", "voennyy", "istoriya", "triller", "uzhasy", "fantastika", "fentezi"
 ])
 async def handle_genre_selection(callback_query: types.CallbackQuery):
