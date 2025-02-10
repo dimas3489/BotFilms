@@ -40,7 +40,7 @@ def get_random_series(genre):
 user_history = {}
 user_favorites = {}
 
-bot = Bot(token="8074184752:AAEjgFxyBDAyY1QEY0SphnqqS3MZp9He_fs")
+bot = Bot(token="")
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
 
