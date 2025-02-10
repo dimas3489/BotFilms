@@ -40,7 +40,7 @@ def get_random_series(genre):
 user_history = {}
 user_favorites = {}
 
-bot = Bot(token="")
+bot = Bot(token="8074184752:AAEjgFxyBDAyY1QEY0SphnqqS3MZp9He_fs")
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
 
@@ -95,7 +95,7 @@ async def show_genre_selection(callback_query: types.CallbackQuery):
     button_detektiv = InlineKeyboardButton("Детектив", callback_data="detektiv")
     button_voennyy = InlineKeyboardButton("Военный", callback_data="voennyy")
     button_istorya = InlineKeyboardButton("История", callback_data="istoriya")
-    button_comedy = InlineKeyboardButton("komediya", callback_data="komediya")
+    button_komediya = InlineKeyboardButton("Комедия", callback_data="komediya")
     button_triller = InlineKeyboardButton("Триллер", callback_data="triller")
     button_uzhasy = InlineKeyboardButton("Ужасы", callback_data="uzhasy")
     button_fantastika = InlineKeyboardButton("Фантастика", callback_data="fantastika")
