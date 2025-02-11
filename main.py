@@ -1,6 +1,7 @@
 import logging
 import random
 import json
+import os
 from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.utils import executor
@@ -38,6 +39,13 @@ def get_random_series(genre):
 def save_favorites_to_file(user_id, favorites):
     with open(f'favorites_{user_id}.json', 'w', encoding='utf-8') as file:
         json.dump(favorites, file, ensure_ascii=False, indent=4)
+
+def load_favorites_from_file(user_id):
+    try:
+        with open(f'favorites_{user_id}.json', 'r', encoding='utf-8') as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return []
 
 user_history = {}
 user_favorites = {}
@@ -189,7 +197,6 @@ async def search_again(callback_query: types.CallbackQuery):
 @dp.callback_query_handler(lambda callback_query: callback_query.data.startswith("add_to_favorites_"))
 async def add_to_favorites(callback_query: types.CallbackQuery):
     user_id = callback_query.from_user.id
-    genre = callback_query.data.split("_")[3]
     if user_id in user_history:
         if user_id not in user_favorites:
             user_favorites[user_id] = []
@@ -198,6 +205,22 @@ async def add_to_favorites(callback_query: types.CallbackQuery):
         await bot.answer_callback_query(callback_query.id, "Фильм/сериал добавлен в избранное!")
     else:
         await bot.answer_callback_query(callback_query.id, "Ошибка: не удалось добавить в избранное.")
+
+@dp.callback_query_handler(lambda callback_query: callback_query.data == "historyk")
+async def show_favorites(callback_query: types.CallbackQuery):
+    user_id = callback_query.from_user.id
+    favorites = load_favorites_from_file(user_id)
+    
+    if favorites:
+        message_text = "Ваше избранное:\n\n"
+        for idx, item in enumerate(favorites, start=1):
+            message_text += f"{idx}. {item['name']} ({item['year']})\nОписание: {item['description']}\n\n"
+        
+        await bot.send_message(user_id, message_text, parse_mode='Markdown')
+    else:
+        await bot.send_message(user_id, "Ваше избранное пусто.")
+    
+    await callback_query.answer()
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
