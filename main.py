@@ -54,8 +54,8 @@ async def start(message: types.Message):
 @dp.callback_query_handler(lambda callback_query: callback_query.data == "menu")
 async def show_genre_selection(callback_query: types.CallbackQuery):
     keyboard = InlineKeyboardMarkup()
-    button_poisk = InlineKeyboardButton("Поиск фильма или сериала на вечер", callback_data="poisk")
-    button_historyk = InlineKeyboardButton("История просмотра и избранное", callback_data="historyk")
+    button_poisk = InlineKeyboardButton("Поиск", callback_data="poisk")
+    button_historyk = InlineKeyboardButton("История и избранное", callback_data="historyk")
     keyboard.add(button_poisk, button_historyk)
     
     await bot.send_message(callback_query.from_user.id, 'Я имею несколько функций, которые представленны ниже', reply_markup=keyboard)
@@ -120,7 +120,7 @@ async def handle_genre_selection(callback_query: types.CallbackQuery):
             user_history[callback_query.from_user.id] = series
             keyboard = InlineKeyboardMarkup()
             button_search_again = InlineKeyboardButton("Искать дальше", callback_data=f"search_again_{genre}")
-            button_add_to_favorites = InlineKeyboardButton("Сохранить в избранное", callback_data=f"add_to_favorites_{genre}")
+            button_add_to_favorites = InlineKeyboardButton("Сохранить", callback_data=f"add_to_favorites_{genre}")
             button_back_to_menu = InlineKeyboardButton("Вернуться в меню", callback_data="menu")
             keyboard.add(button_search_again, button_add_to_favorites, button_back_to_menu)
             
@@ -135,7 +135,7 @@ async def handle_genre_selection(callback_query: types.CallbackQuery):
             user_history[callback_query.from_user.id] = movie
             keyboard = InlineKeyboardMarkup()
             button_search_again = InlineKeyboardButton("Искать дальше", callback_data=f"search_again_{genre}")
-            button_add_to_favorites = InlineKeyboardButton("Сохранить в избранное", callback_data=f"add_to_favorites_{genre}")
+            button_add_to_favorites = InlineKeyboardButton("Сохранить", callback_data=f"add_to_favorites_{genre}")
             button_back_to_menu = InlineKeyboardButton("Вернуться в меню", callback_data="menu")
             keyboard.add(button_search_again, button_add_to_favorites, button_back_to_menu)
             
@@ -157,7 +157,7 @@ async def search_again(callback_query: types.CallbackQuery):
             user_history[callback_query.from_user.id] = series
             keyboard = InlineKeyboardMarkup()
             button_search_again = InlineKeyboardButton("Искать дальше", callback_data=f"search_again_{genre}")
-            button_add_to_favorites = InlineKeyboardButton("Сохранить в избранное", callback_data=f"add_to_favorites_{genre}")
+            button_add_to_favorites = InlineKeyboardButton("Сохранить", callback_data=f"add_to_favorites_{genre}")
             button_back_to_menu = InlineKeyboardButton("Вернуться в меню", callback_data="menu")
             keyboard.add(button_search_again, button_add_to_favorites, button_back_to_menu)
             
@@ -172,7 +172,7 @@ async def search_again(callback_query: types.CallbackQuery):
             user_history[callback_query.from_user.id] = movie
             keyboard = InlineKeyboardMarkup()
             button_search_again = InlineKeyboardButton("Искать дальше", callback_data=f"search_again_{genre}")
-            button_add_to_favorites = InlineKeyboardButton("Сохранить в избранное", callback_data=f"add_to_favorites_{genre}")
+            button_add_to_favorites = InlineKeyboardButton("Сохранить", callback_data=f"add_to_favorites_{genre}")
             button_back_to_menu = InlineKeyboardButton("Вернуться в меню", callback_data="menu")
             keyboard.add(button_search_again, button_add_to_favorites, button_back_to_menu)
             
