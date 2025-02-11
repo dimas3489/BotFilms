@@ -35,7 +35,9 @@ def get_random_series(genre):
         return random.choice(filtered_series)
     return None
 
-
+def save_favorites_to_file(user_id, favorites):
+    with open(f'favorites_{user_id}.json', 'w', encoding='utf-8') as file:
+        json.dump(favorites, file, ensure_ascii=False, indent=4)
 
 user_history = {}
 user_favorites = {}
@@ -192,6 +194,7 @@ async def add_to_favorites(callback_query: types.CallbackQuery):
         if user_id not in user_favorites:
             user_favorites[user_id] = []
         user_favorites[user_id].append(user_history[user_id])
+        save_favorites_to_file(user_id, user_favorites[user_id])
         await bot.answer_callback_query(callback_query.id, "Фильм/сериал добавлен в избранное!")
     else:
         await bot.answer_callback_query(callback_query.id, "Ошибка: не удалось добавить в избранное.")
