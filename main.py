@@ -130,7 +130,10 @@ async def handle_genre_selection(callback_query: types.CallbackQuery):
             user_history[callback_query.from_user.id] = series
             keyboard = InlineKeyboardMarkup()
             button_search_again = InlineKeyboardButton("Искать дальше", callback_data=f"search_again_{genre}")
-            button_add_to_favorites = InlineKeyboardButton("Сохранить", callback_data=f"add_to_favorites_{genre}")
+            button_add_to_favorites = InlineKeyboardButton(
+                "Сохранить", 
+                callback_data=f"add_to_favorites_{series['id']}"  
+            )
             button_back_to_menu = InlineKeyboardButton("Вернуться в меню", callback_data="menu")
             keyboard.add(button_search_again, button_add_to_favorites, button_back_to_menu)
             
@@ -145,7 +148,10 @@ async def handle_genre_selection(callback_query: types.CallbackQuery):
             user_history[callback_query.from_user.id] = movie
             keyboard = InlineKeyboardMarkup()
             button_search_again = InlineKeyboardButton("Искать дальше", callback_data=f"search_again_{genre}")
-            button_add_to_favorites = InlineKeyboardButton("Сохранить", callback_data=f"add_to_favorites_{genre}")
+            button_add_to_favorites = InlineKeyboardButton(
+                "Сохранить", 
+                callback_data=f"add_to_favorites_{movie['id']}" 
+            )
             button_back_to_menu = InlineKeyboardButton("Вернуться в меню", callback_data="menu")
             keyboard.add(button_search_again, button_add_to_favorites, button_back_to_menu)
             
@@ -167,7 +173,10 @@ async def search_again(callback_query: types.CallbackQuery):
             user_history[callback_query.from_user.id] = series
             keyboard = InlineKeyboardMarkup()
             button_search_again = InlineKeyboardButton("Искать дальше", callback_data=f"search_again_{genre}")
-            button_add_to_favorites = InlineKeyboardButton("Сохранить", callback_data=f"add_to_favorites_{genre}")
+            button_add_to_favorites = InlineKeyboardButton(
+                "Сохранить", 
+                callback_data=f"add_to_favorites_{series['id']}"
+            )
             button_back_to_menu = InlineKeyboardButton("Вернуться в меню", callback_data="menu")
             keyboard.add(button_search_again, button_add_to_favorites, button_back_to_menu)
             
@@ -182,7 +191,10 @@ async def search_again(callback_query: types.CallbackQuery):
             user_history[callback_query.from_user.id] = movie
             keyboard = InlineKeyboardMarkup()
             button_search_again = InlineKeyboardButton("Искать дальше", callback_data=f"search_again_{genre}")
-            button_add_to_favorites = InlineKeyboardButton("Сохранить", callback_data=f"add_to_favorites_{genre}")
+            button_add_to_favorites = InlineKeyboardButton(
+                "Сохранить", 
+                callback_data=f"add_to_favorites_{movie['id']}" 
+            )
             button_back_to_menu = InlineKeyboardButton("Вернуться в меню", callback_data="menu")
             keyboard.add(button_search_again, button_add_to_favorites, button_back_to_menu)
             
@@ -197,10 +209,18 @@ async def search_again(callback_query: types.CallbackQuery):
 @dp.callback_query_handler(lambda callback_query: callback_query.data.startswith("add_to_favorites_"))
 async def add_to_favorites(callback_query: types.CallbackQuery):
     user_id = callback_query.from_user.id
-    if user_id in user_history:
+    item_id = int(callback_query.data.split("_")[-1])
+
+    item = None
+    if callback_query.message.text.startswith("Рекомендую Вам посмотреть сериал"):
+        item = next((s for s in series_data['docs'] if s['id'] == item_id), None)
+    else:
+        item = next((m for m in movies_data['docs'] if m['id'] == item_id), None)
+
+    if item:
         if user_id not in user_favorites:
             user_favorites[user_id] = []
-        user_favorites[user_id].append(user_history[user_id])
+        user_favorites[user_id].append(item)
         save_favorites_to_file(user_id, user_favorites[user_id])
         await bot.answer_callback_query(callback_query.id, "Фильм/сериал добавлен в избранное!")
     else:
