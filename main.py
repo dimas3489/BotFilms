@@ -164,7 +164,7 @@ async def handle_genre_selection(callback_query: types.CallbackQuery):
                                    f"Год выпуска: {series['year']}\n"
                                    f"Страна: {countries}\n"
                                    f"Описание: {series['description']}\n"
-                                   f"Постер: {poster_url}",
+                                   f"Постер: [ссылка]({poster_url})",
                                    reply_markup=keyboard, parse_mode='Markdown')
         else:
             await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти сериал.')
@@ -189,7 +189,7 @@ async def handle_genre_selection(callback_query: types.CallbackQuery):
                                    f"Год выпуска: {movie['year']}\n"
                                    f"Страна: {countries}\n"
                                    f"Описание: {movie['description']}\n"
-                                   f"Постер: {poster_url}", 
+                                   f"Постер: [ссылка]({poster_url})",  
                                    reply_markup=keyboard, parse_mode='Markdown')
         else:
             await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти фильм.')
@@ -216,7 +216,7 @@ async def handle_genre_selection(callback_query: types.CallbackQuery):
                                    f"Год выпуска: {animes['year']}\n"
                                    f"Страна: {countries}\n"
                                    f"Описание: {animes['description']}\n"
-                                   f"Постер: {poster_url}",
+                                   f"Постер: [ссылка]({poster_url})", 
                                    reply_markup=keyboard, parse_mode='Markdown')
         else:
             await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти аниме.')
@@ -248,7 +248,7 @@ async def search_again(callback_query: types.CallbackQuery):
                                    f"Год выпуска: {series['year']}\n"
                                    f"Страна: {countries}\n"
                                    f"Описание: {series['description']}\n"
-                                   f"Постер: {poster_url}", 
+                                   f"Постер: [ссылка]({poster_url})",  
                                    reply_markup=keyboard, parse_mode='Markdown')
         else:
             await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти сериал.')
@@ -273,7 +273,7 @@ async def search_again(callback_query: types.CallbackQuery):
                                    f"Год выпуска: {movie['year']}\n"
                                    f"Страна: {countries}\n"
                                    f"Описание: {movie['description']}\n"
-                                   f"Постер: {poster_url}", 
+                                   f"Постер: [ссылка]({poster_url})", 
                                    reply_markup=keyboard, parse_mode='Markdown')
         else:
             await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти фильм.')
@@ -300,7 +300,7 @@ async def search_again(callback_query: types.CallbackQuery):
                                    f"Год выпуска: {animes['year']}\n"
                                    f"Страна: {countries}\n"
                                    f"Описание: {animes['description']}\n"
-                                   f"Постер: {poster_url}",
+                                   f"Постер: [ссылка]({poster_url})",
                                    reply_markup=keyboard, parse_mode='Markdown')
         else:
             await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти аниме.')
@@ -343,7 +343,7 @@ async def show_favorites(callback_query: types.CallbackQuery):
                 countries = ", ".join([country['name'] for country in item['countries']])
                 message_text += f"Страны: {countries}\n"
                 if 'poster' in item and 'url' in item['poster']:
-                     message_text += f"Постер: {item['poster']['url']}\n"
+                     message_text += f"Постер: [ссылка]({item['poster']['url']})\n"
                          
         await bot.send_message(user_id, message_text, parse_mode='Markdown')
     else:
