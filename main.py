@@ -337,8 +337,14 @@ async def show_favorites(callback_query: types.CallbackQuery):
     if favorites:
         message_text = "Ваше избранное:\n\n"
         for idx, item in enumerate(favorites, start=1):
-            message_text += f"{idx}. {item['name']} ({item['year']})\nОписание: {item['description']}\n\n"
-        
+            message_text += f"{idx}. {item['name']} ({item['year']})\n"
+            message_text += f"Описание: {item['description']}\n"
+            if 'countries' in item:
+                countries = ", ".join([country['name'] for country in item['countries']])
+                message_text += f"Страны: {countries}\n"
+                if 'poster' in item and 'url' in item['poster']:
+                     message_text += f"Постер: {item['poster']['url']}\n"
+                         
         await bot.send_message(user_id, message_text, parse_mode='Markdown')
     else:
         await bot.send_message(user_id, "Ваше избранное пусто.")
