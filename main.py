@@ -36,6 +36,19 @@ def get_random_series(genre):
         return random.choice(filtered_series)
     return None
 
+with open('animes.json', 'r', encoding='utf-8') as file:
+    animes_data = json.load(file)
+
+def get_random_animes(genre):
+    animes_list = animes_data['docs']
+    filtered_animes = [
+        animes for animes in animes_list
+        if any(g['name'].lower() == genre.lower() for g in animes['genres'])
+    ]
+    if filtered_animes:
+        return random.choice(filtered_animes)
+    return None
+
 def save_favorites_to_file(user_id, favorites):
     with open(f'favorites_{user_id}.json', 'w', encoding='utf-8') as file:
         json.dump(favorites, file, ensure_ascii=False, indent=4)
@@ -59,13 +72,13 @@ async def start(message: types.Message):
     keyboard = InlineKeyboardMarkup()
     button_menu = InlineKeyboardButton("Меню", callback_data="menu")
     keyboard.add(button_menu)
-    await message.reply('Привет! Я ваш бот для поиска фильмов и сериалов. Нажмите кнопку ниже, чтобы начать.', reply_markup=keyboard)
+    await message.reply('Привет, я бот для поиска фильма, сериала или аниме на вечер, помогу вам найти что нибудь интересное, основываясь на ваших пожеланиях. Нажмите кнопку ниже, чтобы начать.', reply_markup=keyboard)
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data == "menu")
 async def show_genre_selection(callback_query: types.CallbackQuery):
     keyboard = InlineKeyboardMarkup()
     button_poisk = InlineKeyboardButton("Поиск", callback_data="poisk")
-    button_historyk = InlineKeyboardButton("История и избранное", callback_data="historyk")
+    button_historyk = InlineKeyboardButton("Избранное", callback_data="historyk")
     keyboard.add(button_poisk, button_historyk)
     
     await bot.send_message(callback_query.from_user.id, 'Я имею несколько функций, которые представленны ниже', reply_markup=keyboard)
@@ -76,7 +89,9 @@ async def show_genre_selection(callback_query: types.CallbackQuery):
     keyboard = InlineKeyboardMarkup()
     button_serials = InlineKeyboardButton("Cериалы", callback_data="serials")
     button_films = InlineKeyboardButton("Фильмы", callback_data="films")
-    keyboard.add(button_serials, button_films)
+    button_anime = InlineKeyboardButton("Рандомное аниме", callback_data="anime")
+    button_menu = InlineKeyboardButton("Вернутся в меню", callback_data="menu")
+    keyboard.add(button_serials, button_films, button_anime, button_menu)
     
     await bot.send_message(callback_query.from_user.id, 'Что будем искать?', reply_markup=keyboard)
     await callback_query.answer()
@@ -93,8 +108,8 @@ async def show_genre_selection(callback_query: types.CallbackQuery):
     button_fantastika = InlineKeyboardButton("Фантастика", callback_data="fantastika")
     button_fentezi = InlineKeyboardButton("Фэнтези", callback_data="fentezi")
     button_drama = InlineKeyboardButton("Драма", callback_data="drama")
-    button_menu = InlineKeyboardButton("Вернутся в меню", callback_data="menu")
-    keyboard.add(button_detektiv, button_voennyy, button_istorya, button_komediya, button_triller, button_uzhasy, button_fantastika, button_fentezi, button_drama, button_menu)
+    button_back = InlineKeyboardButton("Вернуться назад", callback_data="poisk")
+    keyboard.add(button_detektiv, button_voennyy, button_istorya, button_komediya, button_triller, button_uzhasy, button_fantastika, button_fentezi, button_drama, button_back)
     
     await bot.send_message(callback_query.from_user.id, 'Какой жанр сериала вас интересует?', reply_markup=keyboard)
     await callback_query.answer()
@@ -111,15 +126,15 @@ async def show_genre_selection(callback_query: types.CallbackQuery):
     button_fantastika = InlineKeyboardButton("Фантастика", callback_data="fantastika")
     button_fentezi = InlineKeyboardButton("Фэнтези", callback_data="fentezi")
     button_drama = InlineKeyboardButton("Драма", callback_data="drama")
-    button_menu = InlineKeyboardButton("Вернутся в меню", callback_data="menu")
-    keyboard.add(button_detektiv, button_voennyy, button_istorya, button_komediya, button_triller, button_uzhasy, button_fantastika, button_fentezi, button_drama, button_menu)
+    button_back = InlineKeyboardButton("Вернуться назад", callback_data="poisk")
+    keyboard.add(button_detektiv, button_voennyy, button_istorya, button_komediya, button_triller, button_uzhasy, button_fantastika, button_fentezi, button_drama, button_back)
     
     await bot.send_message(callback_query.from_user.id, 'Какой жанр Вас интересует?', reply_markup=keyboard)
     await callback_query.answer()
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data in [
     "komediya", "drama", "melodram", "detectiv", "war", "history", "fantasy",
-    "detektiv", "voennyy", "istoriya", "triller", "uzhasy", "fantastika", "fentezi"
+    "detektiv", "voennyy", "istoriya", "triller", "uzhasy", "fantastika", "fentezi", "anime"
 ])
 async def handle_genre_selection(callback_query: types.CallbackQuery):
     genre = callback_query.data
@@ -134,15 +149,15 @@ async def handle_genre_selection(callback_query: types.CallbackQuery):
                 "Сохранить", 
                 callback_data=f"add_to_favorites_{series['id']}"  
             )
-            button_back_to_menu = InlineKeyboardButton("Вернуться в меню", callback_data="menu")
-            keyboard.add(button_search_again, button_add_to_favorites, button_back_to_menu)
+            button_back = InlineKeyboardButton("Вернуться назад", callback_data="serials")
+            keyboard.add(button_search_again, button_add_to_favorites, button_back)
             
             await bot.send_message(callback_query.from_user.id, 
                                    f"Рекомендую Вам посмотреть сериал '{series['name']}' ({series['year']}). Описание: {series['description']}",
                                    reply_markup=keyboard, parse_mode='Markdown')
         else:
             await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти сериал.')
-    else:
+    elif callback_query.message.text == 'Какой жанр Вас интересует?':
         movie = get_random_movie(genre)
         if movie:
             user_history[callback_query.from_user.id] = movie
@@ -152,15 +167,32 @@ async def handle_genre_selection(callback_query: types.CallbackQuery):
                 "Сохранить", 
                 callback_data=f"add_to_favorites_{movie['id']}" 
             )
-            button_back_to_menu = InlineKeyboardButton("Вернуться в меню", callback_data="menu")
-            keyboard.add(button_search_again, button_add_to_favorites, button_back_to_menu)
+            button_back = InlineKeyboardButton("Вернуться назад", callback_data="films")
+            keyboard.add(button_search_again, button_add_to_favorites, button_back)
             
             await bot.send_message(callback_query.from_user.id, 
                                    f"Рекомендую Вам посмотреть фильм '{movie['name']}' ({movie['year']}). Описание: {movie['description']}", 
                                    reply_markup=keyboard, parse_mode='Markdown')
         else:
             await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти фильм.')
-    
+    else:
+        animes = get_random_animes(genre)
+        if animes:
+            user_history[callback_query.from_user.id] = animes
+            keyboard = InlineKeyboardMarkup()
+            button_search_again = InlineKeyboardButton("Искать дальше", callback_data=f"search_again_{genre}")
+            button_add_to_favorites = InlineKeyboardButton(
+                "Сохранить",
+                callback_data=f"add_to_favorites_{animes['id']}"
+            )
+            button_menu = InlineKeyboardButton("Вернуться в меню", callback_data="menu")
+            keyboard.add(button_search_again, button_add_to_favorites, button_menu)
+            await bot.send_message(callback_query.from_user.id,
+                                   f"Рекомендую Вам посмотреть аниме '{animes['name']}' ({animes['year']}). Описание: {animes['description']}",
+                                   reply_markup=keyboard, parse_mode='Markdown')
+        else:
+            await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти аниме.')
+           
     await callback_query.answer()
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data.startswith("search_again_"))
@@ -177,15 +209,15 @@ async def search_again(callback_query: types.CallbackQuery):
                 "Сохранить", 
                 callback_data=f"add_to_favorites_{series['id']}"
             )
-            button_back_to_menu = InlineKeyboardButton("Вернуться в меню", callback_data="menu")
-            keyboard.add(button_search_again, button_add_to_favorites, button_back_to_menu)
+            button_back = InlineKeyboardButton("Вернуться назад", callback_data="serials")
+            keyboard.add(button_search_again, button_add_to_favorites, button_back)
             
             await bot.send_message(callback_query.from_user.id, 
                                    f"Рекомендую Вам посмотреть сериал '{series['name']}' ({series['year']}). Описание: {series['description']}", 
                                    reply_markup=keyboard, parse_mode='Markdown')
         else:
             await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти сериал.')
-    else:
+    elif callback_query.message.text.startswith("Рекомендую Вам посмотреть фильм"):
         movie = get_random_movie(genre)
         if movie:
             user_history[callback_query.from_user.id] = movie
@@ -195,14 +227,31 @@ async def search_again(callback_query: types.CallbackQuery):
                 "Сохранить", 
                 callback_data=f"add_to_favorites_{movie['id']}" 
             )
-            button_back_to_menu = InlineKeyboardButton("Вернуться в меню", callback_data="menu")
-            keyboard.add(button_search_again, button_add_to_favorites, button_back_to_menu)
+            button_back = InlineKeyboardButton("Вернуться назад", callback_data="films")
+            keyboard.add(button_search_again, button_add_to_favorites, button_back)
             
             await bot.send_message(callback_query.from_user.id, 
                                    f"Рекомендую Вам посмотреть фильм '{movie['name']}' ({movie['year']}). Описание: {movie['description']}", 
                                    reply_markup=keyboard, parse_mode='Markdown')
         else:
             await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти фильм.')
+    else:
+        animes = get_random_animes(genre)
+        if animes:
+            user_history[callback_query.from_user.id] = animes
+            keyboard = InlineKeyboardMarkup()
+            button_search_again = InlineKeyboardButton("Искать дальше", callback_data=f"search_again_{genre}")
+            button_add_to_favorites = InlineKeyboardButton(
+                "Сохранить",
+                callback_data=f"add_to_favorites_{animes['id']}"
+            )
+            button_menu = InlineKeyboardButton("Вернуться в меню", callback_data="menu")
+            keyboard.add(button_search_again, button_add_to_favorites, button_menu)
+            await bot.send_message(callback_query.from_user.id,
+                                   f"Рекомендую Вам посмотреть аниме '{animes['name']}' ({animes['year']}). Описание: {animes['description']}",
+                                   reply_markup=keyboard, parse_mode='Markdown')
+        else:
+            await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти аниме.')
     
     await callback_query.answer()      
 
@@ -214,15 +263,17 @@ async def add_to_favorites(callback_query: types.CallbackQuery):
     item = None
     if callback_query.message.text.startswith("Рекомендую Вам посмотреть сериал"):
         item = next((s for s in series_data['docs'] if s['id'] == item_id), None)
-    else:
+    elif callback_query.message.text.startswith("Рекомендую Вам посмотреть фильм"):
         item = next((m for m in movies_data['docs'] if m['id'] == item_id), None)
+    elif callback_query.message.text.startswith("Рекомендую Вам посмотреть аниме"):
+        item = next((a for a in animes_data['docs'] if a['id'] == item_id), None)
 
     if item:
         if user_id not in user_favorites:
             user_favorites[user_id] = []
         user_favorites[user_id].append(item)
         save_favorites_to_file(user_id, user_favorites[user_id])
-        await bot.answer_callback_query(callback_query.id, "Фильм/сериал добавлен в избранное!")
+        await bot.answer_callback_query(callback_query.id, "Фильм/сериал/аниме добавлен в избранное!")
     else:
         await bot.answer_callback_query(callback_query.id, "Ошибка: не удалось добавить в избранное.")
 
