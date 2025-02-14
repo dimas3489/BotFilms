@@ -75,10 +75,10 @@
 
 ## Установка и запуск
 
-1. Убедитесь, что у вас установлен Python 3.7 или выше.
+1. Убедитесь, что у вас установлен Python 3.17.0.
 2. Установите необходимые зависимости:
   
-   pip install aiogram
+   pip install aiogram==3.17.0
    
 3. Скачайте файлы movies.json, series.json, и animes.json с данными о фильмах, сериалах и аниме.
 4. Замените значение переменной token в коде на токен вашего бота, полученный от [BotFather](https://core.telegram.org/bots#botfather).
