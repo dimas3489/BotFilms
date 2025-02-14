@@ -216,7 +216,8 @@ async def handle_genre_selection(callback_query: types.CallbackQuery):
                                    f"Год выпуска: {animes['year']}\n"
                                    f"Страна: {countries}\n"
                                    f"Описание: {animes['description']}\n"
-                                   f"Постер: [ссылка]({poster_url})", 
+                                   f"Постер: [ссылка]({poster_url})\n"
+                                   f"Трейлер: [ссылка]({trailer_url})", 
                                    reply_markup=keyboard, parse_mode='Markdown')
         else:
             await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти аниме.')
@@ -300,7 +301,8 @@ async def search_again(callback_query: types.CallbackQuery):
                                    f"Год выпуска: {animes['year']}\n"
                                    f"Страна: {countries}\n"
                                    f"Описание: {animes['description']}\n"
-                                   f"Постер: [ссылка]({poster_url})",
+                                   f"Постер: [ссылка]({poster_url})\n"
+                                   f"Трейлер: [ссылка]({trailer_url})",
                                    reply_markup=keyboard, parse_mode='Markdown')
         else:
             await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти аниме.')
