@@ -136,6 +136,10 @@ async def show_genre_selection(callback_query: types.CallbackQuery):
     "komediya", "drama", "melodram", "detectiv", "war", "history", "fantasy",
     "detektiv", "voennyy", "istoriya", "triller", "uzhasy", "fantastika", "fentezi", "anime"
 ])
+@dp.callback_query_handler(lambda callback_query: callback_query.data in [
+    "komediya", "drama", "melodram", "detectiv", "war", "history", "fantasy",
+    "detektiv", "voennyy", "istoriya", "triller", "uzhasy", "fantastika", "fentezi", "anime"
+])
 async def handle_genre_selection(callback_query: types.CallbackQuery):
     genre = callback_query.data
     
@@ -152,8 +156,14 @@ async def handle_genre_selection(callback_query: types.CallbackQuery):
             button_back = InlineKeyboardButton("Вернуться назад", callback_data="serials")
             keyboard.add(button_search_again, button_add_to_favorites, button_back)
             
+            countries = ", ".join([country['name'] for country in series.get('countries', [])])
+            poster_url = series.get('poster', {}).get('url', '')
+            
             await bot.send_message(callback_query.from_user.id, 
-                                   f"Рекомендую Вам посмотреть сериал '{series['name']}' ({series['year']}). Описание: {series['description']}",
+                                   f"Рекомендую Вам посмотреть сериал '{series['name']}' ({series['year']}).\n"
+                                   f"Страна: {countries}\n"
+                                   f"Описание: {series['description']}\n"
+                                   f"Постер: {poster_url}",
                                    reply_markup=keyboard, parse_mode='Markdown')
         else:
             await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти сериал.')
@@ -170,8 +180,14 @@ async def handle_genre_selection(callback_query: types.CallbackQuery):
             button_back = InlineKeyboardButton("Вернуться назад", callback_data="films")
             keyboard.add(button_search_again, button_add_to_favorites, button_back)
             
+            countries = ", ".join([country['name'] for country in movie.get('countries', [])])
+            poster_url = movie.get('poster', {}).get('url', '')
+            
             await bot.send_message(callback_query.from_user.id, 
-                                   f"Рекомендую Вам посмотреть фильм '{movie['name']}' ({movie['year']}). Описание: {movie['description']}", 
+                                   f"Рекомендую Вам посмотреть фильм '{movie['name']}' ({movie['year']}).\n"
+                                   f"Страна: {countries}\n"
+                                   f"Описание: {movie['description']}\n"
+                                   f"Постер: {poster_url}", 
                                    reply_markup=keyboard, parse_mode='Markdown')
         else:
             await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти фильм.')
@@ -187,13 +203,100 @@ async def handle_genre_selection(callback_query: types.CallbackQuery):
             )
             button_menu = InlineKeyboardButton("Вернуться в меню", callback_data="menu")
             keyboard.add(button_search_again, button_add_to_favorites, button_menu)
+            
+            countries = ", ".join([country['name'] for country in animes.get('countries', [])])
+            poster_url = animes.get('poster', {}).get('url', '')
+            
             await bot.send_message(callback_query.from_user.id,
-                                   f"Рекомендую Вам посмотреть аниме '{animes['name']}' ({animes['year']}). Описание: {animes['description']}",
+                                   f"Рекомендую Вам посмотреть аниме '{animes['name']}' ({animes['year']}).\n"
+                                   f"Страна: {countries}\n"
+                                   f"Описание: {animes['description']}\n"
+                                   f"Постер: {poster_url}",
                                    reply_markup=keyboard, parse_mode='Markdown')
         else:
             await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти аниме.')
            
     await callback_query.answer()
+
+@dp.callback_query_handler(lambda callback_query: callback_query.data.startswith("search_again_"))
+async def search_again(callback_query: types.CallbackQuery):
+    genre = callback_query.data.split("_")[2]
+    
+    if callback_query.message.text.startswith("Рекомендую Вам посмотреть сериал"):
+        series = get_random_series(genre)
+        if series:
+            user_history[callback_query.from_user.id] = series
+            keyboard = InlineKeyboardMarkup()
+            button_search_again = InlineKeyboardButton("Искать дальше", callback_data=f"search_again_{genre}")
+            button_add_to_favorites = InlineKeyboardButton(
+                "Сохранить", 
+                callback_data=f"add_to_favorites_{series['id']}"
+            )
+            button_back = InlineKeyboardButton("Вернуться назад", callback_data="serials")
+            keyboard.add(button_search_again, button_add_to_favorites, button_back)
+            
+            countries = ", ".join([country['name'] for country in series.get('countries', [])])
+            poster_url = series.get('poster', {}).get('url', '')
+            
+            await bot.send_message(callback_query.from_user.id, 
+                                   f"Рекомендую Вам посмотреть сериал '{series['name']}' ({series['year']}).\n"
+                                   f"Страна: {countries}\n"
+                                   f"Описание: {series['description']}\n"
+                                   f"Постер: {poster_url}", 
+                                   reply_markup=keyboard, parse_mode='Markdown')
+        else:
+            await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти сериал.')
+    elif callback_query.message.text.startswith("Рекомендую Вам посмотреть фильм"):
+        movie = get_random_movie(genre)
+        if movie:
+            user_history[callback_query.from_user.id] = movie
+            keyboard = InlineKeyboardMarkup()
+            button_search_again = InlineKeyboardButton("Искать дальше", callback_data=f"search_again_{genre}")
+            button_add_to_favorites = InlineKeyboardButton(
+                "Сохранить", 
+                callback_data=f"add_to_favorites_{movie['id']}" 
+            )
+            button_back = InlineKeyboardButton("Вернуться назад", callback_data="films")
+            keyboard.add(button_search_again, button_add_to_favorites, button_back)
+            
+            countries = ", ".join([country['name'] for country in movie.get('countries', [])])
+            poster_url = movie.get('poster', {}).get('url', '')
+            
+            await bot.send_message(callback_query.from_user.id, 
+                                   f"Рекомендую Вам посмотреть фильм '{movie['name']}' ({movie['year']}).\n"
+                                   f"Страна: {countries}\n"
+                                   f"Описание: {movie['description']}\n"
+                                   f"Постер: {poster_url}", 
+                                   reply_markup=keyboard, parse_mode='Markdown')
+        else:
+            await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти фильм.')
+    else:
+        animes = get_random_animes(genre)
+        if animes:
+            user_history[callback_query.from_user.id] = animes
+            keyboard = InlineKeyboardMarkup()
+            button_search_again = InlineKeyboardButton("Искать дальше", callback_data=f"search_again_{genre}")
+            button_add_to_favorites = InlineKeyboardButton(
+                "Сохранить",
+                callback_data=f"add_to_favorites_{animes['id']}"
+            )
+            button_menu = InlineKeyboardButton("Вернуться в меню", callback_data="menu")
+            keyboard.add(button_search_again, button_add_to_favorites, button_menu)
+            
+            # Добавляем информацию о стране и постер
+            countries = ", ".join([country['name'] for country in animes.get('countries', [])])
+            poster_url = animes.get('poster', {}).get('url', '')
+            
+            await bot.send_message(callback_query.from_user.id,
+                                   f"Рекомендую Вам посмотреть аниме '{animes['name']}' ({animes['year']}).\n"
+                                   f"Страна: {countries}\n"
+                                   f"Описание: {animes['description']}\n"
+                                   f"Постер: {poster_url}",
+                                   reply_markup=keyboard, parse_mode='Markdown')
+        else:
+            await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти аниме.')
+    
+    await callback_query.answer()      
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data.startswith("search_again_"))
 async def search_again(callback_query: types.CallbackQuery):
