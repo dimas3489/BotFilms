@@ -158,13 +158,16 @@ async def handle_genre_selection(callback_query: types.CallbackQuery):
             
             countries = ", ".join([country['name'] for country in series.get('countries', [])])
             poster_url = series.get('poster', {}).get('url', '')
+            trailers = series.get('videos', {}).get('trailers', [])
+            trailer_url = trailers[0]['url'] if trailers else ''
             
             await bot.send_message(callback_query.from_user.id, 
                                    f"Рекомендую Вам посмотреть сериал: \n'{series['name']}'.\n"
                                    f"Год выпуска: {series['year']}\n"
                                    f"Страна: {countries}\n"
                                    f"Описание: {series['description']}\n"
-                                   f"Постер: [ссылка]({poster_url})",
+                                   f"Постер: [ссылка]({poster_url})\n"
+                                   f"Трейлер: [ссылка]({trailer_url})",
                                    reply_markup=keyboard, parse_mode='Markdown')
         else:
             await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти сериал.')
@@ -183,13 +186,16 @@ async def handle_genre_selection(callback_query: types.CallbackQuery):
             
             countries = ", ".join([country['name'] for country in movie.get('countries', [])])
             poster_url = movie.get('poster', {}).get('url', '')
+            trailers = movie.get('videos', {}).get('trailers', [])
+            trailer_url = trailers[0]['url'] if trailers else ''
             
             await bot.send_message(callback_query.from_user.id, 
                                    f"Рекомендую Вам посмотреть фильм: \n'{movie['name']}'.\n"
                                    f"Год выпуска: {movie['year']}\n"
                                    f"Страна: {countries}\n"
                                    f"Описание: {movie['description']}\n"
-                                   f"Постер: [ссылка]({poster_url})",  
+                                   f"Постер: [ссылка]({poster_url})\n"
+                                   f"Трейлер: [ссылка]({trailer_url})",  
                                    reply_markup=keyboard, parse_mode='Markdown')
         else:
             await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти фильм.')
@@ -243,13 +249,16 @@ async def search_again(callback_query: types.CallbackQuery):
             
             countries = ", ".join([country['name'] for country in series.get('countries', [])])
             poster_url = series.get('poster', {}).get('url', '')
+            trailers = series.get('videos', {}).get('trailers', [])
+            trailer_url = trailers[0]['url'] if trailers else ''
             
             await bot.send_message(callback_query.from_user.id, 
                                    f"Рекомендую Вам посмотреть сериал: \n'{series['name']}'.\n"
                                    f"Год выпуска: {series['year']}\n"
                                    f"Страна: {countries}\n"
                                    f"Описание: {series['description']}\n"
-                                   f"Постер: [ссылка]({poster_url})",  
+                                   f"Постер: [ссылка]({poster_url})\n"
+                                   f"Трейлер: [ссылка]({trailer_url})",  
                                    reply_markup=keyboard, parse_mode='Markdown')
         else:
             await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти сериал.')
@@ -268,13 +277,16 @@ async def search_again(callback_query: types.CallbackQuery):
             
             countries = ", ".join([country['name'] for country in movie.get('countries', [])])
             poster_url = movie.get('poster', {}).get('url', '')
+            trailers = movie.get('videos', {}).get('trailers', [])
+            trailer_url = trailers[0]['url'] if trailers else ''
             
             await bot.send_message(callback_query.from_user.id, 
                                    f"Рекомендую Вам посмотреть фильм: \n'{movie['name']}'.\n"
                                    f"Год выпуска: {movie['year']}\n"
                                    f"Страна: {countries}\n"
                                    f"Описание: {movie['description']}\n"
-                                   f"Постер: [ссылка]({poster_url})", 
+                                   f"Постер: [ссылка]({poster_url})\n"
+                                   f"Трейлер: [ссылка]({trailer_url})", 
                                    reply_markup=keyboard, parse_mode='Markdown')
         else:
             await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти фильм.')
@@ -307,7 +319,7 @@ async def search_again(callback_query: types.CallbackQuery):
         else:
             await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти аниме.')
     
-    await callback_query.answer()      
+    await callback_query.answer()            
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data.startswith("add_to_favorites_"))
 async def add_to_favorites(callback_query: types.CallbackQuery):
@@ -331,6 +343,8 @@ async def add_to_favorites(callback_query: types.CallbackQuery):
     else:
         await bot.answer_callback_query(callback_query.id, "Ошибка: не удалось добавить в избранное.")
 
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+
 @dp.callback_query_handler(lambda callback_query: callback_query.data == "historyk")
 async def show_favorites(callback_query: types.CallbackQuery):
     user_id = callback_query.from_user.id
@@ -344,12 +358,25 @@ async def show_favorites(callback_query: types.CallbackQuery):
             if 'countries' in item:
                 countries = ", ".join([country['name'] for country in item['countries']])
                 message_text += f"Страны: {countries}\n"
-                if 'poster' in item and 'url' in item['poster']:
-                     message_text += f"Постер: [ссылка]({item['poster']['url']})\n"
-                         
-        await bot.send_message(user_id, message_text, parse_mode='Markdown')
+            if 'poster' in item and 'url' in item['poster']:
+                message_text += f"Постер: [ссылка]({item['poster']['url']})\n"
+            if 'videos' in item and 'trailers' in item['videos']:
+                trailers = item['videos']['trailers']
+                if trailers:
+                    trailer_url = trailers[0]['url']
+                    message_text += f"Трейлер: [ссылка]({trailer_url})\n"
+        
+        keyboard = InlineKeyboardMarkup(row_width=1)
+        back_button = InlineKeyboardButton(text="Вернуться в меню", callback_data="menu")
+        keyboard.add(back_button)
+        
+        await bot.send_message(user_id, message_text, parse_mode='Markdown', reply_markup=keyboard)
     else:
-        await bot.send_message(user_id, "Ваше избранное пусто.")
+        keyboard = InlineKeyboardMarkup(row_width=1)
+        back_button = InlineKeyboardButton(text="Вернуться в меню", callback_data="menu")
+        keyboard.add(back_button)
+        
+        await bot.send_message(user_id, "Ваше избранное пусто.", reply_markup=keyboard)
     
     await callback_query.answer()
 
