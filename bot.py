@@ -358,13 +358,6 @@ async def show_favorites(callback_query: types.CallbackQuery):
             if 'countries' in item:
                 countries = ", ".join([country['name'] for country in item['countries']])
                 message_text += f"Страны: {countries}\n"
-            if 'poster' in item and 'url' in item['poster']:
-                message_text += f"Постер: [ссылка]({item['poster']['url']})\n"
-            if 'videos' in item and 'trailers' in item['videos']:
-                trailers = item['videos']['trailers']
-                if trailers:
-                    trailer_url = trailers[0]['url']
-                    message_text += f"Трейлер: [ссылка]({trailer_url})\n"
         
         keyboard = InlineKeyboardMarkup(row_width=1)
         back_button = InlineKeyboardButton(text="Вернуться в меню", callback_data="menu")
