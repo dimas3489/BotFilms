@@ -146,31 +146,33 @@ async def handle_genre_selection(callback_query: types.CallbackQuery):
     if callback_query.message.text == 'Какой жанр сериала вас интересует?':
         series = get_random_series(genre)
         if series:
-            user_history[callback_query.from_user.id] = series
-            keyboard = InlineKeyboardMarkup()
-            button_search_again = InlineKeyboardButton("Искать дальше", callback_data=f"search_again_{genre}")
-            button_add_to_favorites = InlineKeyboardButton(
-                "Сохранить", 
-                callback_data=f"add_to_favorites_{series['id']}"  
-            )
-            button_back = InlineKeyboardButton("Вернуться назад", callback_data="serials")
-            keyboard.add(button_search_again, button_add_to_favorites, button_back)
-            
-            countries = ", ".join([country['name'] for country in series.get('countries', [])])
-            poster_url = series.get('poster', {}).get('url', '')
-            trailers = series.get('videos', {}).get('trailers', [])
-            trailer_url = trailers[0]['url'] if trailers else ''
-            
-            await bot.send_message(callback_query.from_user.id, 
-                                   f"Рекомендую Вам посмотреть сериал: \n'{series['name']}'.\n"
-                                   f"Год выпуска: {series['year']}\n"
-                                   f"Страна: {countries}\n"
-                                   f"Описание: {series['description']}\n"
-                                   f"Постер: [ссылка]({poster_url})\n"
-                                   f"Трейлер: [ссылка]({trailer_url})",
-                                   reply_markup=keyboard, parse_mode='Markdown')
-        else:
-            await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти сериал.')
+    user_history[callback_query.from_user.id] = series
+    keyboard = InlineKeyboardMarkup()
+    button_search_again = InlineKeyboardButton("Искать дальше", callback_data=f"search_again_{genre}")
+    button_add_to_favorites = InlineKeyboardButton(
+        "Сохранить", 
+        callback_data=f"add_to_favorites_{series['id']}"  
+    )
+    button_back = InlineKeyboardButton("Вернуться назад", callback_data="serials")
+    keyboard.add(button_search_again, button_add_to_favorites, button_back)
+    
+    countries = ", ".join([country['name'] for country in series.get('countries', [])])
+    poster_url = series.get('poster', {}).get('url', '')
+    trailers = series.get('videos', {}).get('trailers', [])
+    trailer_url = trailers[0]['url'] if trailers else ''
+    
+    caption = (f"Рекомендую Вам посмотреть сериал: \n'{series['name']}'.\n"
+               f"Год выпуска: {series['year']}\n"
+               f"Страна: {countries}\n"
+               f"Описание: {series['description']}\n"
+               f"Трейлер: [ссылка]({trailer_url})")
+    
+    if poster_url:
+        await bot.send_photo(callback_query.from_user.id, poster_url, caption=caption, reply_markup=keyboard, parse_mode='Markdown')
+    else:
+        await bot.send_message(callback_query.from_user.id, caption, reply_markup=keyboard, parse_mode='Markdown')
+else:
+    await bot.send_message(callback_query.from_user.id, 'Извините, не удалось найти сериал.')
     elif callback_query.message.text == 'Какой жанр Вас интересует?':
         movie = get_random_movie(genre)
         if movie:
@@ -351,19 +353,25 @@ async def show_favorites(callback_query: types.CallbackQuery):
     favorites = load_favorites_from_file(user_id)
     
     if favorites:
-        message_text = "Ваше избранное:\n\n"
-        for idx, item in enumerate(favorites, start=1):
-            message_text += f"{idx}. {item['name']} ({item['year']})\n"
-            message_text += f"Описание: {item['description']}\n"
+        for item in favorites:
+            # Формируем текст сообщения
+            message_text = f"Название: {item['name']}\n"
+            message_text += f"Год выпуска: {item['year']}\n"
             if 'countries' in item:
                 countries = ", ".join([country['name'] for country in item['countries']])
                 message_text += f"Страны: {countries}\n"
-        
-        keyboard = InlineKeyboardMarkup(row_width=1)
-        back_button = InlineKeyboardButton(text="Вернуться в меню", callback_data="menu")
-        keyboard.add(back_button)
-        
-        await bot.send_message(user_id, message_text, parse_mode='Markdown', reply_markup=keyboard)
+            message_text += f"Описание: {item['description']}\n"
+            
+            poster_url = item.get('poster', {}).get('url', '')
+            
+            keyboard = InlineKeyboardMarkup(row_width=1)
+            back_button = InlineKeyboardButton(text="Вернуться в меню", callback_data="menu")
+            keyboard.add(back_button)
+            
+            if poster_url:
+                await bot.send_photo(user_id, poster_url, caption=message_text, reply_markup=keyboard)
+            else:
+                await bot.send_message(user_id, message_text, reply_markup=keyboard)
     else:
         keyboard = InlineKeyboardMarkup(row_width=1)
         back_button = InlineKeyboardButton(text="Вернуться в меню", callback_data="menu")
