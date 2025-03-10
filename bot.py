@@ -63,7 +63,7 @@ def load_favorites_from_file(user_id):
 user_history = {}
 user_favorites = {}
 
-bot = Bot(token="")
+bot = Bot(token="7032899334:AAGopM-hI10m2mwDuk9ynQoqGehuWZ8xDA4")
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
 
@@ -354,7 +354,6 @@ async def show_favorites(callback_query: types.CallbackQuery):
     
     if favorites:
         for item in favorites:
-            # Формируем текст сообщения
             message_text = f"Название: {item['name']}\n"
             message_text += f"Год выпуска: {item['year']}\n"
             if 'countries' in item:
