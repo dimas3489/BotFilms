@@ -82,7 +82,7 @@
   
    pip install aiogram==3.17.0
    
-4. Скачайте файлы movies.json, series.json, и animes.json с данными о фильмах, сериалах и аниме.
+4. Скачайте файлы movies.json, series.json, и animes.json с данными о фильмах, сериалах и аниме, которые бот использует как базу данных для выгрузки необходимого запроса.
 5. Замените значение переменной token в коде на токен вашего бота, полученный от [BotFather](https://core.telegram.org/bots#botfather).
 6. Запустите бота:
   
